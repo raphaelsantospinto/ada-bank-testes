@@ -1,3 +1,6 @@
-Classes de teste:
+<h2>Classes de teste criadas:</h2>
 
-ClienteServiceTest; 
+<ul>
+<li>ClienteServiceTest; </li>
+<li>ClientController</li>
+</ul>
