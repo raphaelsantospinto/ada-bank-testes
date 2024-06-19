@@ -1,6 +1,7 @@
 package br.ada.caixa.controller;
 
 import br.ada.caixa.dto.request.DepositoRequestDto;
+import br.ada.caixa.dto.request.SaqueRequestDto;
 import br.ada.caixa.entity.Cliente;
 import br.ada.caixa.entity.Conta;
 import br.ada.caixa.entity.TipoCliente;
@@ -35,6 +36,8 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ExtendWith(MockitoExtension.class)
@@ -109,7 +112,14 @@ class OperacoesBancariasControllerITTest {
                 .cliente(cliente2)
                 .createdAt(LocalDate.now())
                 .build();
-
+        var contaCorrente3 = Conta.builder()
+                .numero(3L)
+                .saldo(BigDecimal.valueOf(2000))
+                .tipo(TipoConta.CONTA_CORRENTE)
+//                .cliente(clienteRepository.findByDocumento(cliente1.getDocumento()).get())
+                .cliente(cliente1)
+                .createdAt(LocalDate.now())
+                .build();
         contaRepository.saveAllAndFlush(List.of(contaCorrente1, contaCorrente2));
 
     }
@@ -139,15 +149,52 @@ class OperacoesBancariasControllerITTest {
         assertThat(valor.compareTo(contaRepository.findByNumero(numeroConta).get().getSaldo())).isZero();
         assertEquals(0, valor.compareTo(contaRepository.findByNumero(numeroConta).get().getSaldo()));
 
-        Mockito.verify(contaRepository).save(any(Conta.class));
+        verify(contaRepository).save(any(Conta.class));
     }
 
     @Test
     void sacar() {
+        final var valor = BigDecimal.valueOf(1000);
+        final var expected = BigDecimal.valueOf(1000);
+        final var numeroConta = 3L;
+        SaqueRequestDto saqueRequestDto =
+                SaqueRequestDto.builder()
+                        .numeroConta(numeroConta)
+                        .valor(valor)
+                        .build();
+        //when
+        var response = restTemplate.postForEntity(url + "/sacar", saqueRequestDto, Void.class);
+
+
+
+        assertEquals(HttpStatus.OK, response.getStatusCode());
+        contaRepository.
+                findByNumero(3L)
+                .map(Conta::getSaldo)
+                .ifPresent(saldo->assertEquals(expected, saldo));
+
+
+    }
+    @Test
+    void sacarValorAcimaDoSaldo() {
+        final var valor = BigDecimal.valueOf(1000);
+        final var numeroConta = 1L;
+        SaqueRequestDto saqueRequestDto =
+                SaqueRequestDto.builder()
+                        .numeroConta(numeroConta)
+                        .valor(valor)
+                        .build();
+        //when
+        var response = restTemplate.postForEntity(url + "/sacar", saqueRequestDto, Void.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+
+
+
     }
 
     @Test
     void transferencia() {
+
     }
 
     @Test
