@@ -40,7 +40,7 @@ public class OperacoesBancariasController {
     }
 
     @PostMapping("/sacar")
-    public ResponseEntity<Void> sacar(@RequestBody SaqueRequestDto saqueRequestDto) {
+    public ResponseEntity<Void>sacar(@RequestBody SaqueRequestDto saqueRequestDto) {
         saqueService.sacar(saqueRequestDto.getNumeroConta(), saqueRequestDto.getValor());
         return ResponseEntity.ok().build();
     }
