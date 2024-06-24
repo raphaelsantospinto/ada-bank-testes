@@ -246,6 +246,7 @@ class OperacoesBancariasControllerITTest {
 
     @Test
     void investir() {
+
     }
 
     @Test

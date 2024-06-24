@@ -150,14 +150,4 @@ class ClienteControllerITTest {
         final var entity = repository.findByDocumento(cnpj);
         assertEquals(nomeFantasia, entity.get().getNome());
     }
-
-
-
-
-
-
-
-
-
-
 }
